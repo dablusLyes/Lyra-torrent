@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/dablusLyes/Lyra-torrent/issues"
   },
-  "homepage": "https://github.com/dablusLyes/Lyra-torrent#readme"
+  "homepage": "https://github.com/dablusLyes/Lyra-torrent#readme",
+  "dependencies": {
+    "bencode": "^4.0.0",
+    "nodemon": "^3.1.2"
+  }
 }
