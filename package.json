@@ -19,6 +19,7 @@
   "homepage": "https://github.com/dablusLyes/Lyra-torrent#readme",
   "dependencies": {
     "bencode": "^4.0.0",
+    "bencode-js": "^0.0.8",
     "nodemon": "^3.1.2"
   }
 }
