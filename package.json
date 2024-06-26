@@ -20,6 +20,8 @@
   "dependencies": {
     "bencode": "^4.0.0",
     "bencode-js": "^0.0.8",
-    "nodemon": "^3.1.2"
+    "express": "^4.19.2",
+    "nodemon": "^3.1.2",
+    "socketio": "^1.0.0"
   }
 }
