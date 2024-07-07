@@ -2,7 +2,7 @@
   "name": "lyra-torrent",
   "version": "1.0.0",
   "description": "My very special Torrent client",
-  "main": "index.js",
+  "main": "./index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -20,8 +20,11 @@
   "dependencies": {
     "bencode": "^4.0.0",
     "bencode-js": "^0.0.8",
+    "buffer": "^6.0.3",
+    "dgram": "^1.0.1",
     "express": "^4.19.2",
     "nodemon": "^3.1.2",
+    "socket.io": "^4.7.5",
     "socketio": "^1.0.0"
   }
 }
