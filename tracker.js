@@ -43,12 +43,6 @@ const respType = (res) => {
 	if (action === 1) return "announce";
 };
 
-const buildAnnounceReq = () => {};
-
-const parseAnnounceResp = () => {};
-
-
-
 /* Connection request as decribed on the BEP (https://www.bittorrent.org/beps/bep_0015.html)  
 
     Offset  Size            Name            Value
@@ -87,3 +81,7 @@ const parseConnResp = (res) => {
         connectionId : res.slice(8)
     }
 }
+
+const buildAnnounceReq = () => {};
+
+const parseAnnounceResp = () => {};
