@@ -56,14 +56,13 @@ const buildConnReq = () => {
 	// init a 16 bytes size buffer
 	const buf = Buffer.alloc(16);
 
-	/* [0]    connection_id 
-              write 0x41727101980 (idk why that number specifically ?XD) 
-              in two parts because node.js doesn't suppport precise 64bit ints)
-              so instead we split in two 32bit ints 
-    
+	/*      
+		[0]	connection_id 
+			write 0x41727101980 (idk why that number specifically ?XD) 
+			in two parts because node.js doesn't suppport precise 64bit ints)
+			so instead we split in two 32bit ints 
     */
 	buf.writeUInt32BE(0x417, 0);
-	// [3]
 	buf.writeUInt32BE(0x27101980, 4);
 
 	// [8] Action - should always be 0 for the connection request
@@ -82,8 +81,6 @@ const parseConnResp = (res) => {
 		connectionId: res.slice(8),
 	};
 };
-
-const buildAnnounceReq = () => {};
 
 /*
 same logic as earlier, this time we will build a 98 byte buffer for the announce 
@@ -108,14 +105,13 @@ Offset  Size    Name    Value
 
 the conn id we last generated is passed, with the torrent and a PORT
 */
-const parseAnnounceResp = (connId, torrent, port = 6881) => {
+const buildAnnounceReq = (connId, torrent, port = 6881) => {
 	const buf = Buffer.allocUnsafe(98);
 
 	// Connection id
 	connId.copy(buf, 0);
 
 	// action
-
 	buf.writeUInt32BE(1, 8);
 
 	// transaction id
@@ -134,27 +130,38 @@ const parseAnnounceResp = (connId, torrent, port = 6881) => {
 	torrentParser.size(torrent).copy(buf, 64);
 
 	// uploaded
-
 	Buffer.alloc(8).copy(buf, 72);
 
 	// event
 	buf.writeInt32BE(0, 80);
 
 	// ip address
-
 	buf.writeUint32BE(0, 84);
 
 	// key
 	crypto.randomBytes(4).copy(buf, 88);
+
 	// num want
 	buf.writeInt32BE(-1, 92);
+
 	// port
 	buf.writeUInt16BE(port, 96);
 
 	return buf;
 };
 
-function parseAnnounceResp(resp) {
+/*
+	Offset      Size            Name            Value
+	0           32-bit integer  action          1 // announce
+	4           32-bit integer  transaction_id
+	8           32-bit integer  interval
+	12          32-bit integer  leechers
+	16          32-bit integer  seeders
+	20 + 6 * n  32-bit integer  IP address
+	24 + 6 * n  16-bit integer  TCP port
+	
+*/
+const parseAnnounceResp = (resp) => {
 	function group(iterable, groupSize) {
 		let groups = [];
 		for (let i = 0; i < iterable.length; i += groupSize) {
@@ -175,4 +182,4 @@ function parseAnnounceResp(resp) {
 			};
 		}),
 	};
-}
+};
