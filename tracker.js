@@ -1,6 +1,7 @@
 import { parse } from "url";
 import { Buffer } from "buffer";
 import dgram from "dgram";
+import { log } from "console";
 
 // steps to get the list of Peers from the torrent
 
@@ -12,7 +13,7 @@ import dgram from "dgram";
 export const getPeers = (torrent, callback) => {
 	const socket = dgram.createSocket("udp4");
 	const url = parse(torrent.announce);
-
+	console.log(url);
 	udpSend(socket, buildConnReq(), url);
 
 	// a . send connect req
@@ -42,3 +43,5 @@ const respType = (res) => console.log(res);
 const buildAnnounceReq = () => {};
 
 const parseAnnounceResp = () => {};
+
+const buildConnReq = () => {};
