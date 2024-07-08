@@ -83,6 +83,8 @@ const parseConnResp = (res) => {
 	};
 };
 
+const buildAnnounceReq = () => {};
+
 /*
 same logic as earlier, this time we will build a 98 byte buffer for the announce 
 
@@ -106,7 +108,7 @@ Offset  Size    Name    Value
 
 the conn id we last generated is passed, with the torrent and a PORT
 */
-const buildAnnounceReq = (connId, torrent, port = 6881) => {
+const parseAnnounceResp = (connId, torrent, port = 6881) => {
 	const buf = Buffer.allocUnsafe(98);
 
 	// Connection id
@@ -140,52 +142,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 
 	// ip address
 
-	buf.writeUInt32BE(0, 84);
+	buf.writeUint32BE(0, 84);
 
 	// key
-	crypto.randomBytes(4).copy(buf, 88);
-
-	// num_want
-
-	buf.writeInt32BE(-1, 92);
-
-	// port
-	buf.writeUInt32BE(port, 96);
-
-	return buf;
-};
-
-/*
-Offset      Size            Name            Value
-0           32-bit integer  action          1 // announce
-4           32-bit integer  transaction_id
-8           32-bit integer  interval
-12          32-bit integer  leechers is that the number of leechers ?
-16          32-bit integer  seeders  "    "    "    "    " seeders  ?
-20 + 6 * n  32-bit integer  IP address
-24 + 6 * n  16-bit integer  TCP port
-20 + 6 * N
-*/
-
-const parseAnnounceResp = (resp) => {
-	const group = (iterable, groupSize) => {
-		let groups = [];
-		for (let i = 0; i < iterable.length; i += groupSize) {
-			groups.push(iterable.slice(i, i + groupSize));
-		}
-		return groups;
-	};
-
-	return {
-		action: resp.readUInt32BE(0),
-		transactionId: resp.readUInt32BE(4),
-		leechers: resp.readUInt32BE(8),
-		seeders: resp.readUInt32BE(12),
-		peers: group(resp.slice(20), 6).map((addr) => {
-			return {
-				ip: addr.slice(0, 4).join("."),
-				port: addr.readUInt32BE(4),
-			};
-		}),
-	};
 };
