@@ -1,12 +1,9 @@
 import fs from "fs";
 import bencode from "bencode";
-import express from "express";
-import { getPeers } from "./tracker.js";
+import { getPeers } from "./src/tracker.js";
 import { parse } from "url";
 import { Buffer } from "buffer";
 import dgram from "dgram";
-import { log } from "console";
-let buffer = Buffer;
 
 const torrent = bencode.decode(fs.readFileSync("puppy.torrent"), "utf8");
 let url = parse(torrent.announce);

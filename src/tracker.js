@@ -144,5 +144,5 @@ const parseAnnounceResp = (connId, torrent, port = 6881) => {
 
 	buf.writeUint32BE(0, 84);
 
-	// key NIQUE SA MERE HAZSHFAZHAZHAZHRAZEUTAET
+	// key
 };
