@@ -2,7 +2,9 @@ import { parse } from "url";
 import { Buffer } from "buffer";
 import dgram from "dgram";
 import crypto from "crypto";
-import { genId } from "./utils";
+import { genId } from "./utils.js";
+import { open, size, infoHash } from "./src/torrent-parser.js";
+
 // steps to get the list of Peers from the torrent
 
 // 1 . Send a connect request
