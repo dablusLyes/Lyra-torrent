@@ -1,7 +1,7 @@
 import { parse } from "url";
 import { Buffer } from "buffer";
 import dgram from "dgram";
-import { crypto } from crypto
+import crypto from "crypto";
 // steps to get the list of Peers from the torrent
 
 // 1 . Send a connect request
@@ -23,9 +23,9 @@ export const getPeers = (torrent, callback) => {
 			// c . send the announce response
 			const announceReq = buildAnnounceReq(connResp.connectionId);
 			udpSend(socket, announceReq, url);
-		} else if (respType(reponse) === "announce") {
+		} else if (respType(res) === "announce") {
 			// d . Parse the announce response
-			const announceResp = parseAnnounceResp(reponse);
+			const announceResp = parseAnnounceResp(res);
 			// e . Pass peers to callback
 			callback(announceResp.peers);
 		}
@@ -52,35 +52,35 @@ const respType = (res) => {
     16 
 */
 const buildConnReq = () => {
-    // init a 16 bytes size buffer
-    const buf = Buffer.alloc(16);
+	// init a 16 bytes size buffer
+	const buf = Buffer.alloc(16);
 
-    /* [0]    connection_id 
+	/* [0]    connection_id 
               written 0x41727101980 (idk why that number specifically ?XD) & 
               in two parts because node doesn't suppport precise 64bit ints)
               so instead we split in two 32bit ints 
     
     */
-    buf.writeUInt32BE(0x417, 0);
-    // [3]
-    buf.writeUInt32BE(0x27101980, 4);
+	buf.writeUInt32BE(0x417, 0);
+	// [3]
+	buf.writeUInt32BE(0x27101980, 4);
 
-    // [8] Action - should always be 0 for the connection request
-    buf.writeUint16BE(0, 8)
-    
-    // [12] transaction_id ? random, crypto generates a random 4 byte message at offset 12 of the Buffer "buf" 
-    crypto.randomBytes(4).copy(buf, 12)
-    
-    return buf;
+	// [8] Action - should always be 0 for the connection request
+	buf.writeUint16BE(0, 8);
+
+	// [12] transaction_id ? random, crypto generates a random 4 byte message at offset 12 of the Buffer "buf"
+	crypto.randomBytes(4).copy(buf, 12);
+
+	return buf;
 };
 
 const parseConnResp = (res) => {
-    return {
-        action: res.readUint32BE(0),
-        transactionId: readUint32BE(4),
-        connectionId : res.slice(8)
-    }
-}
+	return {
+		action: res.readUint32BE(0),
+		transactionId: readUint32BE(4),
+		connectionId: res.slice(8),
+	};
+};
 
 const buildAnnounceReq = () => {};
 

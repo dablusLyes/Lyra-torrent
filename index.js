@@ -21,4 +21,4 @@ const myMsg = Buffer.from("hello?", "utf-8");
 // 	console.log("messge : ", msg);
 // });
 
-getPeers(torrent, console.log());
+getPeers(torrent, console.log("peers: ", peers));
