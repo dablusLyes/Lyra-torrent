@@ -145,4 +145,34 @@ const parseAnnounceResp = (connId, torrent, port = 6881) => {
 	buf.writeUint32BE(0, 84);
 
 	// key
+	crypto.randomBytes(4).copy(buf, 88);
+	// num want
+	buf.writeInt32BE(-1, 92);
+	// port
+	buf.writeUInt16BE(port, 96);
+
+	return buf;
 };
+
+function parseAnnounceResp(resp) {
+	function group(iterable, groupSize) {
+		let groups = [];
+		for (let i = 0; i < iterable.length; i += groupSize) {
+			groups.push(iterable.slice(i, i + groupSize));
+		}
+		return groups;
+	}
+
+	return {
+		action: resp.readUInt32BE(0),
+		transactionId: resp.readUInt32BE(4),
+		leechers: resp.readUInt32BE(8),
+		seeders: resp.readUInt32BE(12),
+		peers: group(resp.slice(20), 6).map((address) => {
+			return {
+				ip: address.slice(0, 4).join("."),
+				port: address.readUInt16BE(4),
+			};
+		}),
+	};
+}
