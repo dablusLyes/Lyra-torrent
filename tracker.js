@@ -38,7 +38,11 @@ const udpSend = (socket, message, rawUrl, callback = () => {}) => {
 	socket.send(message, 0, message.length, url.port, url.host, callback);
 };
 
-const respType = (res) => console.log(res);
+const respType = (res) => {
+	let action = res.readUint32BE(0);
+	if (action === 0) return "connect";
+	if (action === 1) return "announce";
+};
 
 const buildAnnounceReq = () => {};
 
