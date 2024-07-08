@@ -1,8 +1,7 @@
 import { parse } from "url";
 import { Buffer } from "buffer";
 import dgram from "dgram";
-import { log } from "console";
-
+import { crypto } from crypto
 // steps to get the list of Peers from the torrent
 
 // 1 . Send a connect request
@@ -48,4 +47,43 @@ const buildAnnounceReq = () => {};
 
 const parseAnnounceResp = () => {};
 
-const buildConnReq = () => {};
+
+
+/* Connection request as decribed on the BEP (https://www.bittorrent.org/beps/bep_0015.html)  
+
+    Offset  Size            Name            Value
+    0       64-bit integer  connection_id   0x41727101980
+    8       32-bit integer  action          0 // connect
+    12      32-bit integer  transaction_id  ? // random
+    16 
+*/
+const buildConnReq = () => {
+    // init a 16 bytes size buffer
+    const buf = Buffer.alloc(16);
+
+    /* [0]    connection_id 
+              written 0x41727101980 (idk why that number specifically ?XD) & 
+              in two parts because node doesn't suppport precise 64bit ints)
+              so instead we split in two 32bit ints 
+    
+    */
+    buf.writeUInt32BE(0x417, 0);
+    // [3]
+    buf.writeUInt32BE(0x27101980, 4);
+
+    // [8] Action - should always be 0 for the connection request
+    buf.writeUint16BE(0, 8)
+    
+    // [12] transaction_id ? random, crypto generates a random 4 byte message at offset 12 of the Buffer "buf" 
+    crypto.randomBytes(4).copy(buf, 12)
+    
+    return buf;
+};
+
+const parseConnResp = (res) => {
+    return {
+        action: res.readUint32BE(0),
+        transactionId: readUint32BE(4),
+        connectionId : res.slice(8)
+    }
+}
