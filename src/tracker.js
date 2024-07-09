@@ -1,9 +1,9 @@
 import { parse } from "url";
 import { Buffer } from "buffer";
-import dgram from "dgram";
+import dgram, { Socket } from "dgram";
 import crypto from "crypto";
 import { genId } from "./utils.js";
-import { open, size, infoHash } from "./src/torrent-parser.js";
+import { open, size, infoHash } from "./torrent-parser.js";
 
 // steps to get the list of Peers from the torrent
 
@@ -14,24 +14,28 @@ import { open, size, infoHash } from "./src/torrent-parser.js";
 
 export const getPeers = (torrent, callback) => {
 	const socket = dgram.createSocket("udp4");
+	console.log(torrent);
 	const url = parse(torrent.announce);
-	console.log(url);
-	udpSend(socket, buildConnReq(), url);
 
+	udpSend(socket, buildConnReq(), url);
 	// a . send connect req
 	socket.on("message", (res) => {
+		console.log("resp?");
 		if (respType(res) === "connect") {
+			console.log(res);
 			// b . get the reponse id and build the announce msg
 			const connResp = parseConnResp(res);
 			// c . send the announce response
 			const announceReq = buildAnnounceReq(connResp.connectionId);
 			udpSend(socket, announceReq, url);
 		} else if (respType(res) === "announce") {
+			console.log(res);
 			// d . Parse the announce response
 			const announceResp = parseAnnounceResp(res);
 			// e . Pass peers to callback
 			callback(announceResp.peers);
 		}
+		console.log("yes?");
 	});
 };
 
@@ -46,14 +50,15 @@ const respType = (res) => {
 	if (action === 1) return "announce";
 };
 
-/* Connection request as decribed on the BEP (https://www.bittorrent.org/beps/bep_0015.html)  
-
+/* 
+	Connection request as decribed on the BEP (https://www.bittorrent.org/beps/bep_0015.html)  
     Offset  Size            Name            Value
     0       64-bit integer  connection_id   0x41727101980
     8       32-bit integer  action          0 // connect
-    12      32-bit integer  transaction_id  ? // random
+    12      32-bit integer  transaction_id  ? // random 
     16 
 */
+
 const buildConnReq = () => {
 	// init a 16 bytes size buffer
 	const buf = Buffer.alloc(16);
@@ -73,15 +78,21 @@ const buildConnReq = () => {
 	// [12] transaction_id ? random, crypto generates a random 4 byte message at offset 12 of the Buffer "buf"
 	crypto.randomBytes(4).copy(buf, 12);
 
+	console.log("connection request :", buf);
+
 	return buf;
 };
-
+// Last resort let's try to get a torrent file that i am sure WORKS
+// ah ya zebi explorer aw i3aniXDDDDDDDDDDDDDDDDDDDDDDD TNAKET
 const parseConnResp = (res) => {
-	return {
+	let parsedResp = {
 		action: res.readUInt32BE(0),
 		transactionId: readUInt32BE(4),
 		connectionId: res.slice(8),
 	};
+
+	console.log(parsedResp);
+	return parsedResp;
 };
 
 /*
@@ -120,7 +131,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 	crypto.randomBytes(4).copy(buf, 12);
 
 	// info hash
-	torrentParser.infoHash(torrent).copy(buf, 16);
+	infoHash(torrent).copy(buf, 16);
 
 	// peer_id
 	genId().copy(buf, 36);
@@ -129,7 +140,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 	Buffer.alloc(8).copy(buf, 56);
 
 	// left (?XD)
-	torrentParser.size(torrent).copy(buf, 64);
+	size(torrent).copy(buf, 64);
 
 	// uploaded
 	Buffer.alloc(8).copy(buf, 72);
@@ -138,7 +149,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 	buf.writeInt32BE(0, 80);
 
 	// ip address
-	buf.writeUint32BE(0, 84);
+	buf.writeUint32BE(0, 80);
 
 	// key
 	crypto.randomBytes(4).copy(buf, 88);
@@ -148,7 +159,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 
 	// port
 	buf.writeUInt16BE(port, 96);
-
+	console.log("announce request :", buf);
 	return buf;
 };
 

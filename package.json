@@ -21,6 +21,9 @@
   "dependencies": {
     "bencode": "^4.0.0",
     "bencode-js": "^0.0.8",
+    "bigint-buffer": "^1.1.5",
+    "bignumber": "^1.1.0",
+    "bn": "^1.0.5",
     "buffer": "^6.0.3",
     "dgram": "^1.0.1",
     "express": "^4.19.2",
