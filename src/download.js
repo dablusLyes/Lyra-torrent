@@ -2,19 +2,18 @@ import net from "net";
 import { Buffer } from "buffer";
 import { getPeers } from "./tracker.js";
 
-// ugly import statements for now but i'll redesign shit as i go
-
 export let passPeers = (torrent) => {
 	getPeers(torrent, (peers) => {
-		peers.forEach(download(torrent), console.log(peers));
+		peers.forEach(download);
 	});
 };
 
-export function download(torrent) {
+export function download(peer) {
 	const socket = net.Socket();
 	socket.on("error", console.log);
-	socket.connect(port, up, () => {
-		socket.write(buffer.from(":D"));
+
+	socket.connect(peer.port, peer.ip, () => {
+		socket.write(buffer.from("Oui le Q"));
 	});
 
 	socket.on("data", (responseBuffer) => {

@@ -1,6 +1,6 @@
 import { parse } from "url";
 import { Buffer } from "buffer";
-import dgram, { Socket } from "dgram";
+import dgram from "dgram";
 import crypto from "crypto";
 import { genId } from "./utils.js";
 import { open, size, infoHash } from "./torrent-parser.js";
@@ -60,7 +60,6 @@ const respType = (res) => {
 const buildConnReq = () => {
 	// init a 16 bytes size buffer
 	const buf = Buffer.alloc(16);
-
 	/*      
 		[0]	connection_id 
 			write 0x41727101980 (idk why that number specifically ?XD) 
@@ -79,7 +78,6 @@ const buildConnReq = () => {
 	return buf;
 };
 // Last resort let's try to get a torrent file that i am sure WORKS
-// ah ya zebi explorer aw i3aniXDDDDDDDDDDDDDDDDDDDDDDD TNAKET
 const parseConnResp = (res) => {
 	let parsedResp = {
 		action: res.readUInt32BE(0),
