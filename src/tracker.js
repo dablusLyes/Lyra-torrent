@@ -14,15 +14,12 @@ import { open, size, infoHash } from "./torrent-parser.js";
 
 export const getPeers = (torrent, callback) => {
 	const socket = dgram.createSocket("udp4");
-	console.log(torrent);
 	const url = torrent.announce.toString("utf8");
 
 	udpSend(socket, buildConnReq(), url);
 	// a . send connect req
 	socket.on("message", (res) => {
-		console.log("resp?");
 		if (respType(res) === "connect") {
-			console.log(res);
 			// b . get the reponse id and build the announce msg
 			const connResp = parseConnResp(res);
 			// c . send the announce response
@@ -32,13 +29,11 @@ export const getPeers = (torrent, callback) => {
 			);
 			udpSend(socket, announceReq, url);
 		} else if (respType(res) === "announce") {
-			console.log(res);
 			// d . Parse the announce response
 			const announceResp = parseAnnounceResp(res);
 			// e . Pass peers to callback
 			callback(announceResp.peers);
 		}
-		console.log("yes?");
 	});
 };
 
@@ -81,8 +76,6 @@ const buildConnReq = () => {
 	// [12] transaction_id ? random, crypto generates a random 4 byte message at offset 12 of the Buffer "buf"
 	crypto.randomBytes(4).copy(buf, 12);
 
-	console.log("connection request :", buf);
-
 	return buf;
 };
 // Last resort let's try to get a torrent file that i am sure WORKS
@@ -94,7 +87,6 @@ const parseConnResp = (res) => {
 		connectionId: res.slice(8),
 	};
 
-	console.log(parsedResp);
 	return parsedResp;
 };
 
@@ -162,7 +154,6 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 
 	// port
 	buf.writeUInt16BE(port, 96);
-	console.log("announce request :", buf);
 	return buf;
 };
 
