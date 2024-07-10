@@ -1,22 +1,17 @@
 import fs from "fs";
 import bencode from "bencode";
 import * as crypto from "crypto";
-import { toBigIntBE } from "bigint-buffer";
+import { BigIntToBuffer } from "./utils.js";
 
 export const open = (filepath) =>
 	bencode.decode(fs.readFileSync("dz.torrent"), "utf-8");
 
 export const size = (torrent) => {
-	let size = null;
-	if (torrent.info.files) {
-		size = torrent.info.files
-			.map((files) => files.length)
-			.reduce((a, b) => a + b);
-	} else {
-		size = torrent.info.length;
-	}
+	const size = torrent.info.files
+		? torrent.info.files.map((file) => file.length).reduce((a, b) => a + b)
+		: torrent.info.length;
 	let a = BigInt(size);
-	return toBigIntBE(a, 8);
+	return BigIntToBuffer(a, { size: 8 });
 };
 
 export const infoHash = (torrent) => {

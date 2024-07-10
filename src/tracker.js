@@ -15,7 +15,7 @@ import { open, size, infoHash } from "./torrent-parser.js";
 export const getPeers = (torrent, callback) => {
 	const socket = dgram.createSocket("udp4");
 	console.log(torrent);
-	const url = parse(torrent.announce);
+	const url = torrent.announce.toString("utf8");
 
 	udpSend(socket, buildConnReq(), url);
 	// a . send connect req
@@ -26,7 +26,10 @@ export const getPeers = (torrent, callback) => {
 			// b . get the reponse id and build the announce msg
 			const connResp = parseConnResp(res);
 			// c . send the announce response
-			const announceReq = buildAnnounceReq(connResp.connectionId);
+			const announceReq = buildAnnounceReq(
+				connResp.connectionId,
+				torrent,
+			);
 			udpSend(socket, announceReq, url);
 		} else if (respType(res) === "announce") {
 			console.log(res);
@@ -41,11 +44,11 @@ export const getPeers = (torrent, callback) => {
 
 const udpSend = (socket, message, rawUrl, callback = () => {}) => {
 	const url = parse(rawUrl);
-	socket.send(message, 0, message.length, url.port, url.host, callback);
+	socket.send(message, 0, message.length, url.port, url.hostname, callback);
 };
 
 const respType = (res) => {
-	let action = res.readUint32BE(0);
+	let action = res.readUInt32BE(0);
 	if (action === 0) return "connect";
 	if (action === 1) return "announce";
 };
@@ -87,7 +90,7 @@ const buildConnReq = () => {
 const parseConnResp = (res) => {
 	let parsedResp = {
 		action: res.readUInt32BE(0),
-		transactionId: readUInt32BE(4),
+		transactionId: res.readUInt32BE(4),
 		connectionId: res.slice(8),
 	};
 
@@ -149,7 +152,7 @@ const buildAnnounceReq = (connId, torrent, port = 6881) => {
 	buf.writeInt32BE(0, 80);
 
 	// ip address
-	buf.writeUint32BE(0, 80);
+	buf.writeUint32BE(0, 84);
 
 	// key
 	crypto.randomBytes(4).copy(buf, 88);

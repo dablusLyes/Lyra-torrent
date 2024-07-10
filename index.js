@@ -1,10 +1,9 @@
 import fs from "fs";
 import bencode from "bencode";
-import { getPeers } from "./src/tnekt.js";
-import { BigInteger } from "bignumber";
+import { getPeers } from "./src/tracker.js";
 import { open } from "./src/torrent-parser.js";
 
-const torrent = open("./zeb.torrent");
+const torrent = open("./puppy.torrent");
 
 getPeers(torrent, (peers) => {
 	console.log("List of peers: ", peers);
